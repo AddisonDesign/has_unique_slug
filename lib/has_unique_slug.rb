@@ -24,6 +24,9 @@ module HasUniqueSlug
       options = { :column => :slug, :subject => :title, :scope => nil }
       options.merge! args
       slug_column, subject_column, scope_column = options[:column], options[:subject], options[:scope]
+
+      # use the class that calls `has_unique_slug` for validation
+      record_class = self
       
       # Use before_validates otherwise ActiveRecord uniqueness validations on the model will fail.  Uniqueness is already guarneteed.
       # It is not recommend to use a 'validates :slug, :uniqueness => true' validation because that will add unndeeded stress on the
@@ -39,7 +42,6 @@ module HasUniqueSlug
         if scope_column.is_a?(Proc)
           record_scope = scope_column.call(record)
         else
-          record_class = record.class.base_class
           record_scope = record.new_record? ? record_class.all : record_class.where("id != ?", record.id)
           
           # Add scope to uniqueness call
