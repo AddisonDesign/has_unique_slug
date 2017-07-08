@@ -40,9 +40,6 @@ end
 
 class Vehicle < ActiveRecord::Base
   has_unique_slug 
-  # :scope => ->(record) {
-  #   Vehicle.
-  # }
 end
 
 class Car < Vehicle
