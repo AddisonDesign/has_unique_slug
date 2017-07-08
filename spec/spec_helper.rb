@@ -20,9 +20,22 @@ def setup_db
       t.column :slug, :string
       t.column :some_scope, :integer
     end
+
     create_table :custom do |t|
       t.column :name, :string
       t.column :permalink, :string
+    end
+
+    create_table :deleted_scope_procs do |t|
+      t.column :title, :string
+      t.column :slug, :string
+      t.column :deleted_at, :datetime
+    end
+
+    create_table :vehicles do |t|
+      t.column :title, :string
+      t.column :slug, :string
+      t.column :type, :string
     end
   end
 end

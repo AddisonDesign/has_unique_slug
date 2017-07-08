@@ -8,6 +8,12 @@ class Standard < ActiveRecord::Base
   end
 end
 
+class DeletedScopeProc < ActiveRecord::Base
+  has_unique_slug :scope => Proc.new { |record| 
+    DeletedScopeProc.where(:deleted_at => nil)
+  }
+end
+
 class StandardWithScope < ActiveRecord::Base
   has_unique_slug :scope => :some_scope
   
@@ -32,6 +38,21 @@ class Custom2 < ActiveRecord::Base
   end
 end
 
+class Vehicle < ActiveRecord::Base
+  has_unique_slug 
+  # :scope => ->(record) {
+  #   Vehicle.
+  # }
+end
+
+class Car < Vehicle
+
+end
+
+class Truck < Vehicle
+
+end
+
 describe HasUniqueSlug do
   
   before(:all) do
@@ -45,6 +66,7 @@ describe HasUniqueSlug do
   after(:each) do
     Standard.destroy_all
     Custom.destroy_all
+    Vehicle.destroy_all
   end
   
   it "creates a unique slug" do
@@ -145,4 +167,18 @@ describe HasUniqueSlug do
     expect { r.valid? }.to_not raise_error
   end
   
+  it "should perform uniqueness in context of base class for STI" do
+    car = Car.create(:title => "El Camino")
+    truck = Truck.create(:title => "El Camino")
+
+    car.slug.should_not == truck.slug
+  end
+
+  it "should allow scope as proc" do
+    title = "My Title"
+    a = DeletedScopeProc.create(:title => title, :deleted_at => Time.now)
+    b = DeletedScopeProc.create(:title => title)
+
+    b.slug.should == a.slug
+  end
 end
